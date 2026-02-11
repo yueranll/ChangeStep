@@ -128,10 +128,11 @@ if __name__ == "__main__":
         check_item = {
             "phone": user,
             "password": pwd,
-            "min_step": 18000,
-            "max_step": 25000
+            "min_step": 23000,
+            "max_step": 30000
         }
 
         mi = MiMotion(check_item)
         print(mi.main())
+
         time.sleep(random.randint(2, 5))
