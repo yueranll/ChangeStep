@@ -6,7 +6,7 @@ import os
 
 
 class MiMotion():
-    name = "小米运动"
+    name = "支付宝运动"
 
     def __init__(self, check_item):
         self.check_item = check_item
@@ -135,4 +135,5 @@ if __name__ == "__main__":
         mi = MiMotion(check_item)
         print(mi.main())
 
-        time.sleep(random.randint(2, 5))
+        time.sleep(random.randint(7, 10))
+
