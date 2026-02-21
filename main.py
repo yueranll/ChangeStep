@@ -26,7 +26,7 @@ class MiMotion():
             print(f"[!] 无法获取淘宝时间戳，改用本地时间。错误详情: {e}")
             return str(int(time.time() * 1000))
 
-    def login(self, phone, password):
+    def login(self, phone, password, device_id):
         phone_pattern = r"(^(1)\d{10}$)"
         if re.match(phone_pattern, phone):
             user = f"+86{phone}"
@@ -50,7 +50,7 @@ class MiMotion():
             return 0, 0, f"【登录异常】无法连接至授权服务器: {e}"
 
         url2 = "https://account.zepp.com/v2/client/login"
-        data2 = f"app_name=com.xiaomi.hm.health&country_code=CN&code={code}&device_id=fuck1069-2002-7869-0129-757geoi6sam1&device_model=android_phone&app_version=6.12.0&grant_type=access_token&allow_registration=false&dn=account.zepp.com,api-user.zepp.com,api-mifit.zepp.com,api-watch.zepp.com,app-analytics.zepp.com,api-analytics.huami.com,auth.zepp.com&source=com.xiaomi.hm.health&third_name={third_name}"
+        data2 = f"app_name=com.xiaomi.hm.health&country_code=CN&code={code}&device_id={device_id}&device_model=android_phone&app_version=6.12.0&grant_type=access_token&allow_registration=false&dn=account.zepp.com,api-user.zepp.com,api-mifit.zepp.com,api-watch.zepp.com,app-analytics.zepp.com,api-analytics.huami.com,auth.zepp.com&source=com.xiaomi.hm.health&third_name={third_name}"
 
         try:
             r2 = requests.post(url=url2, data=data2, headers=self.headers, timeout=10).json()
@@ -66,7 +66,7 @@ class MiMotion():
     def main(self):
         phone = str(self.check_item.get("phone"))
         password = str(self.check_item.get("password"))
-
+        device_id = str(self.check_item.get("device_id"))
         # 默认步数逻辑改进：增加容错提示
         try:
             min_step = int(self.check_item.get("min_step", 20000))
@@ -76,7 +76,7 @@ class MiMotion():
             min_step, max_step = 20000, 29999
 
         step = str(random.randint(min_step, max_step))
-        login_token, userid, app_token = self.login(phone, password)
+        login_token, userid, app_token = self.login(phone, password, device_id)
 
         if login_token == 0:
             return f"❌ 账号: {phone} | 状态: 失败 | 原因: {app_token}"
@@ -122,18 +122,24 @@ if __name__ == "__main__":
 
     account_list = accounts_env.splitlines()
     for acc in account_list:
-        if "#" not in acc: continue
-        user, pwd = acc.split("#")
+        parts = acc.split("#")
+
+        if len(parts) != 3:
+            print(f"❌ 格式错误，跳过: {acc}")
+            continue
+        user, pwd, device_id = parts
 
         check_item = {
             "phone": user,
             "password": pwd,
             "min_step": 23000,
-            "max_step": 30000
+            "max_step": 30000,
+            "device_id": device_id
         }
 
         mi = MiMotion(check_item)
         print(mi.main())
 
         time.sleep(random.randint(7, 10))
+
 
